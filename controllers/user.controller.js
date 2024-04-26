@@ -44,7 +44,6 @@ const createUser = async (req, res) => {
 const getUserById = async (req, res) => {
   try {
     const { id } = req.params;
-
     const userExists = await checkExistsById(userSchema, id);
     if (userExists) {
       const user = await userSchema.findOne({ _id: id });

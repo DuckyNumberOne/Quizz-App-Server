@@ -19,7 +19,7 @@ router.post(
   createUser
 );
 router.post("/checkExisEmail", checkExistsUser);
-router.get("/getAllUser", middlewareController.verifyTokenAdmin, getAllUser);
+router.get("/getAllUser", middlewareController.verifyTokenMember, getAllUser);
 router.get("/getUser/:id", middlewareController.verifyTokenMember, getUserById);
 router.put(
   "/updateUser/:id",

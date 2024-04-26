@@ -5,17 +5,25 @@ const middlewareValidate = require("../middleware/validation/validationMiddlewar
 
 router.get("/getAllQuizz", quizzController.getQuizzs);
 router.get("/getItemQuizz/:id", quizzController.getQuizzsById);
+router.get("/getItemQuizzByUser/:id", quizzController.getQuizzsByIdUser);
 router.post(
   "/createQuizz",
   //   middlewareValidate(quizzchema),
-  middlewareToken.verifyTokenAdmin,
+  middlewareToken.verifyTokenMember,
   quizzController.createQuizz
 );
 router.put(
   "/updateQuizz/:id",
   // middlewareValidate(quizzchema),
-  middlewareToken.verifyTokenAdmin,
+  middlewareToken.verifyTokenMember,
   quizzController.updateQuizz
+);
+
+router.put(
+  "/addQuestions/:id",
+  // middlewareValidate(quizzchema),
+  middlewareToken.verifyTokenMember,
+  quizzController.addQuestion
 );
 
 router.delete(
