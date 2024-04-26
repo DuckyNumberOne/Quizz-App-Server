@@ -30,8 +30,6 @@ const QuizzSchema = new mongoose.Schema(
     },
     visibility: {
       type: String,
-      minlength: 16,
-      maxlength: 50,
       required: true,
       default: "public",
     }, //2 option:"private and public"---default:"public" required
@@ -53,8 +51,38 @@ const QuizzSchema = new mongoose.Schema(
     },
     question: [
       {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Question",
+        title: {
+          type: String,
+          minlength: 5,
+          maxlength: 50,
+          required: true,
+        },
+        imgQuestion: {
+          type: String,
+          required: true,
+        },
+        time: {
+          type: Number,
+          default: 0,
+        },
+        point: {
+          type: Number,
+          default: 0,
+        },
+        anwsers: [
+          {
+            number: {
+              type: Number,
+              required: true,
+              default: 0,
+            }, //required
+            text: { type: String, minlength: 1, maxlength: 50, required: true }, //required
+            isCorrect: {
+              type: Boolean,
+              required: true,
+            },
+          },
+        ],
       },
     ],
   },

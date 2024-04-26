@@ -17,8 +17,8 @@ const QuizzResultsSchema = new mongoose.Schema(
       required: true,
     },
     completionTime: {
-      type: String,
-      default: "00:00",
+      type: Number,
+      default: 0,
     },
     totalPoints: {
       type: Number,
