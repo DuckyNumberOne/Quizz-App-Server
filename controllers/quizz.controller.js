@@ -1,11 +1,20 @@
 const QuizzSchema = require("../model/Quizz");
 const UserSchema = require("../model/User");
+const CollectionSchema = require("../model/Collection");
 
 const { checkExistsById } = require("../utils/checkExistsById");
 const QuizzsController = {
+  // getQuizzs: async (req, res) => {
+  //   try {
+  //     const quizz = await QuizzSchema.find();
+  //     res.json(quizz);
+  //   } catch (error) {
+  //     res.status(500).json({ error: error.message });
+  //   }
+  // },
   getQuizzs: async (req, res) => {
     try {
-      const quizz = await QuizzSchema.find();
+      const quizz = await QuizzSchema.find().populate("idCollection", "title");
       res.json(quizz);
     } catch (error) {
       res.status(500).json({ error: error.message });
@@ -18,10 +27,79 @@ const QuizzsController = {
       const quizzExists = await checkExistsById(QuizzSchema, id);
       if (quizzExists) {
         const quizz = await QuizzSchema.findOne({ _id: id });
-        res.status(200).json(quizz);
+        const user = await UserSchema.findOne({ _id: quizz.idUser });
+        const collection = await CollectionSchema.findOne({
+          _id: quizz.idCollection,
+        });
+        const quizzWithUserInfo = {
+          ...quizz.toObject(),
+          user: user,
+          collection: collection,
+        };
+        res.status(200).json(quizzWithUserInfo);
       } else {
         return res.status(404).json({ error: "Quizz not found" });
       }
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  },
+
+  getQuestionById: async (req, res) => {
+    try {
+      const { id } = req.params;
+      const quizzExists = await checkExistsById(QuizzSchema, id);
+      if (quizzExists) {
+        const quizz = await QuizzSchema.findOne(
+          { _id: id },
+          { "question.anwsers.isCorrect": 0 }
+        );
+        const question = quizz.question;
+        if (!question) {
+          return res.status(404).json({ error: "Question not found" });
+        }
+        res.status(200).json(question);
+      } else {
+        return res.status(404).json({ error: "Question not found" });
+      }
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  },
+
+  getAnwsersIsTrue: async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { idsArrayAnswer, idQuestion } = req.body;
+
+      if (idsArrayAnswer.length > 3) {
+        return res.status(400).json({ error: "Maximum 3 IDs allowed" });
+      }
+      const quizz = await QuizzSchema.findOne({ _id: id });
+
+      if (!quizz) {
+        return res.status(404).json({ error: "Quizz not found" });
+      }
+
+      const question = quizz.question.find(
+        (question) => question._id.toString() === idQuestion
+      );
+
+      if (!question) {
+        return res.status(404).json({ error: "Question not found" });
+      }
+
+      const correctAnswers = question.anwsers.filter(
+        (answer) => answer.isCorrect
+      );
+
+      const isAllCorrect =
+        correctAnswers.length === idsArrayAnswer.length &&
+        idsArrayAnswer.every((id) =>
+          correctAnswers.some((answer) => answer._id.toString() === id)
+        );
+
+      res.status(200).json({ isAllCorrect });
     } catch (error) {
       res.status(500).json({ error: error.message });
     }
@@ -32,7 +110,10 @@ const QuizzsController = {
       const { id } = req.params;
       const userExists = await checkExistsById(UserSchema, id);
       if (userExists) {
-        const quizz = await UserSchema.findOne({ idUser: id });
+        const quizz = await QuizzSchema.find({ idUser: id }).populate(
+          "idCollection",
+          "title"
+        );
         res.status(200).json(quizz);
       } else {
         return res.status(404).json({ error: "User not found" });
@@ -44,13 +125,10 @@ const QuizzsController = {
 
   createQuizz: async (req, res) => {
     try {
+      req.body;
       const existingQuizz = await QuizzSchema.findOne({
         title: req.body.title,
       });
-      console.log(
-        "🚀 ~ file: quizz.controller.js:33 ~ createQuizz: ~ req.body:",
-        req.body
-      );
       if (existingQuizz) {
         return res.status(403).json("Quizz already exists");
       } else {

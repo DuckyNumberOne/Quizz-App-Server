@@ -5,11 +5,13 @@ const middlewareValidate = require("../middleware/validation/validationMiddlewar
 
 router.get("/getAllQuizz", quizzController.getQuizzs);
 router.get("/getItemQuizz/:id", quizzController.getQuizzsById);
+router.get("/getQuestionById/:id", quizzController.getQuestionById);
+router.post("/getAnwsersIsTrue/:id", quizzController.getAnwsersIsTrue);
 router.get("/getItemQuizzByUser/:id", quizzController.getQuizzsByIdUser);
 router.post(
   "/createQuizz",
   //   middlewareValidate(quizzchema),
-  middlewareToken.verifyTokenMember,
+  // middlewareToken.verifyTokenMember,
   quizzController.createQuizz
 );
 router.put(
