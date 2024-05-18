@@ -14,7 +14,7 @@ const QuizzSchema = new mongoose.Schema(
     title: {
       type: String,
       minlength: 5,
-      maxlength: 50,
+      maxlength: 500,
       required: true,
     },
     description: {
@@ -54,7 +54,7 @@ const QuizzSchema = new mongoose.Schema(
         title: {
           type: String,
           minlength: 5,
-          maxlength: 50,
+          maxlength: 500,
           required: true,
         },
         imgQuestion: {
@@ -76,7 +76,7 @@ const QuizzSchema = new mongoose.Schema(
               required: true,
               default: 0,
             }, //required
-            text: { type: String, minlength: 1, maxlength: 50, required: true }, //required
+            text: { type: String, maxlength: 80, required: true }, //required
             isCorrect: {
               type: Boolean,
               required: true,

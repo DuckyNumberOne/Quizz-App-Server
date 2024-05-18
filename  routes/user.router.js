@@ -10,7 +10,10 @@ const {
 const validate = require("../middleware/validation/validationMiddleware");
 const middlewareController = require("../middleware/token/tokenMiddleware");
 const middlewareInitializ = require("../middleware/handlers/initializMiddleware.js");
-const { userSchema } = require("../validation/user/userValidation.js");
+const {
+  userSchema,
+  userSchemaUpdate,
+} = require("../validation/user/userValidation.js");
 
 router.post(
   "/createUser",
@@ -23,7 +26,7 @@ router.get("/getAllUser", middlewareController.verifyTokenMember, getAllUser);
 router.get("/getUser/:id", middlewareController.verifyTokenMember, getUserById);
 router.put(
   "/updateUser/:id",
-  validate(userSchema),
+  validate(userSchemaUpdate),
   middlewareController.verifyTokenMember,
   updateUser
 );

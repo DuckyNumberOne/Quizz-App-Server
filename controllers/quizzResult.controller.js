@@ -32,6 +32,22 @@ const QuizzResultSchemaController = {
     }
   },
 
+  getQuizzResultByIdQuizz: async (req, res) => {
+    try {
+      const { id } = req.params;
+      const quizzExists = await checkExistsById(QuizzResultSchema, id);
+      if (quizzExists) {
+        const quizzResultS = await QuizzResultSchema.find({ idQuizz: id });
+        const quizzCheck = await Quizz.findOne({ _id: quizzResultS.idQuizz });
+        res.status(200).json(quizzCheck);
+      } else {
+        return res.status(404).json({ error: "QuizzResult not found" });
+      }
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  },
+
   getQuizzResultByIdUser: async (req, res) => {
     try {
       const { id } = req.params;
@@ -47,12 +63,29 @@ const QuizzResultSchemaController = {
     }
   },
 
+  // getQuizzResultByIdQuizz: async (req, res) => {
+  //   try {
+  //     const { id } = req.params;
+  //     const quizzExists = await checkExistsById(QuizzSchema, id);
+  //     if (quizzExists) {
+  //       const quizzResultS = await QuizzResultSchema.find({ idQuizz: id });
+  //       res.status(200).json(quizzResultS);
+  //     } else {
+  //       return res.status(404).json({ error: "Quizz not found" });
+  //     }
+  //   } catch (error) {
+  //     res.status(500).json({ error: error.message });
+  //   }
+  // },
+
   getQuizzResultByIdQuizz: async (req, res) => {
     try {
       const { id } = req.params;
       const quizzExists = await checkExistsById(QuizzSchema, id);
       if (quizzExists) {
-        const quizzResultS = await QuizzResultSchema.find({ idQuizz: id });
+        const quizzResultS = await QuizzResultSchema.find({
+          idQuizz: id,
+        }).populate("idUser", "fullName urlAvatar");
         res.status(200).json(quizzResultS);
       } else {
         return res.status(404).json({ error: "Quizz not found" });
@@ -66,18 +99,43 @@ const QuizzResultSchemaController = {
     try {
       const userExists = await checkExistsById(UserSchema, req.body.idUser);
       const quizzExists = await checkExistsById(QuizzSchema, req.body.idQuizz);
+
       if (!userExists || !quizzExists) {
-        return res.status(403).json("user or quizz already not exists");
-      } else if (userExists && quizzExists) {
-        const quizzResultS = new QuizzResultSchema({
+        return res.status(403).json("User or Quizz does not exist");
+      }
+
+      // Tìm kiếm bản ghi QuizzResultSchema dựa trên idUser và idQuizz
+      const existingQuizzResult = await QuizzResultSchema.findOne({
+        idUser: req.body.idUser,
+        idQuizz: req.body.idQuizz,
+      });
+
+      if (existingQuizzResult) {
+        // Nếu bản ghi đã tồn tại, cập nhật các trường dữ liệu
+        existingQuizzResult.rightAnswer = req.body.rightAnswer;
+        existingQuizzResult.completionTime = req.body.completionTime;
+        existingQuizzResult.totalPoints = req.body.totalPoints;
+        existingQuizzResult.questions = req.body.questions;
+
+        // Lưu và trả về kết quả
+        const updatedQuizzResult = await existingQuizzResult.save();
+        console.log("Updated QuizzResult:", updatedQuizzResult);
+        res.json(updatedQuizzResult);
+      } else {
+        // Nếu bản ghi không tồn tại, tạo mới bản ghi
+        const newQuizzResult = new QuizzResultSchema({
           idUser: req.body.idUser,
           idQuizz: req.body.idQuizz,
           rightAnswer: req.body.rightAnswer,
           completionTime: req.body.completionTime,
           totalPoints: req.body.totalPoints,
+          questions: req.body.questions,
         });
-        const savedQuizzResultS = await quizzResultS.save();
-        res.json(savedQuizzResultS);
+
+        // Lưu và trả về kết quả
+        const savedQuizzResult = await newQuizzResult.save();
+        console.log("Saved QuizzResult:", savedQuizzResult);
+        res.json(savedQuizzResult);
       }
     } catch (error) {
       res.status(500).json({ error: error.message });
@@ -121,6 +179,53 @@ const QuizzResultSchemaController = {
         _id: req.params.id,
       });
       res.json(deleteQuizz);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  },
+
+  deleteAllQuizzResults: async (req, res) => {
+    try {
+      await QuizzResultSchema.deleteMany({});
+      res.json({ message: "All Quizz Results deleted successfully" });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  },
+
+  calculateQuestionPercentages: async (req, res) => {
+    try {
+      const { id } = req.params;
+      const quizzResults = await QuizzResultSchema.find({ idQuizz: id });
+      const quizz = await QuizzSchema.findById(id);
+      if (!quizz) {
+        return res.status(404).json({ error: "QuizzResult not found" });
+      }
+      const totalPlayers = quizzResults.length;
+
+      const countRightAnswers = new Array(quizz.question.length).fill(0);
+      quizzResults.forEach((result) => {
+        result.questions.forEach((question, index) => {
+          if (question.rightAnswer) {
+            countRightAnswers[index]++;
+          }
+        });
+      });
+
+      const questionPercentages = countRightAnswers.map((count) =>
+        parseInt((count / totalPlayers) * 100)
+      );
+
+      const wrongAnswerData = countRightAnswers.map((count) =>
+        parseInt(((totalPlayers - count) / totalPlayers) * 100)
+      );
+
+      const response = [
+        { name: "Right answer", data: questionPercentages },
+        { name: "Wrong answer", data: wrongAnswerData },
+      ];
+
+      res.status(200).json(response);
     } catch (error) {
       res.status(500).json({ error: error.message });
     }

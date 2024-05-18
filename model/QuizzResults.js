@@ -12,6 +12,14 @@ const QuizzResultsSchema = new mongoose.Schema(
       ref: "Quizz",
       required: true,
     },
+    questions: [
+      {
+        index: { type: Number, required: true },
+        point: { type: Number, required: true },
+        time: { type: Number, required: true },
+        rightAnswer: { type: Boolean, required: true },
+      },
+    ],
     rightAnswer: {
       type: Number,
       required: true,

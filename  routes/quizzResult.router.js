@@ -14,10 +14,15 @@ router.get(
   quizzResultController.getQuizzResultByIdQuizz
 );
 
+router.get(
+  "/getQuestionPercentagesByQuizzId/:id",
+  quizzResultController.calculateQuestionPercentages
+);
+
 router.post(
   "/createQuizzResult",
   // middlewareValidate(quizzchema),
-  middlewareToken.verifyTokenMember,
+  // middlewareToken.verifyTokenMember,
   quizzResultController.createQuizzResult
 );
 router.put(
@@ -31,6 +36,12 @@ router.delete(
   "/deleteQuizzResult/:id",
   middlewareToken.verifyTokenAdmin,
   quizzResultController.deleteQuizzResult
+);
+
+router.delete(
+  "/deleteAllQuizzResult/",
+  // middlewareToken.verifyTokenAdmin,
+  quizzResultController.deleteAllQuizzResults
 );
 
 module.exports = router;
