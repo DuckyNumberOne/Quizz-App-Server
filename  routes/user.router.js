@@ -6,6 +6,7 @@ const {
   getAllUser,
   deleteUser,
   updateUser,
+  findUserNameByFullName,
 } = require("../controllers/user.controller");
 const validate = require("../middleware/validation/validationMiddleware");
 const middlewareController = require("../middleware/token/tokenMiddleware");
@@ -23,6 +24,11 @@ router.post(
 );
 router.post("/checkExisEmail", checkExistsUser);
 router.get("/getAllUser", middlewareController.verifyTokenMember, getAllUser);
+router.get(
+  "/getAllUserByFullName/:fullName",
+  middlewareController.verifyTokenMember,
+  findUserNameByFullName
+);
 router.get("/getUser/:id", middlewareController.verifyTokenMember, getUserById);
 router.put(
   "/updateUser/:id",

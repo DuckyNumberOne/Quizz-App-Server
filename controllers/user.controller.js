@@ -104,7 +104,41 @@ const deleteUser = async (req, res) => {
   }
 };
 
+const findUserNameByFullName = async (req, res) => {
+  try {
+    const { fullName } = req.params;
+
+    const users = await userSchema.aggregate([
+      {
+        $match: {
+          fullName: {
+            $regex: fullName,
+            $options: "i",
+          },
+        },
+      },
+      {
+        $project: {
+          fullName: 1,
+          urlAvatar: 1,
+          country: 1,
+          typeAccount: 1,
+        },
+      },
+    ]);
+
+    if (users && users.length > 0) {
+      return res.status(200).json(users);
+    } else {
+      return res.status(404).json({ error: "Users not found" });
+    }
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 module.exports = {
+  findUserNameByFullName,
   checkExistsUser,
   createUser,
   getAllUser,

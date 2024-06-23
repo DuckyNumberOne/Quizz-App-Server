@@ -36,9 +36,21 @@ const QuizzResultSchemaController = {
     try {
       const { id } = req.params;
       const quizzExists = await checkExistsById(QuizzResultSchema, id);
+
       if (quizzExists) {
-        const quizzResultS = await QuizzResultSchema.find({ idQuizz: id });
-        const quizzCheck = await Quizz.findOne({ _id: quizzResultS.idQuizz });
+        const quizzResults = await QuizzResultSchema.find({ idQuizz: id });
+
+        quizzResults.sort((a, b) => {
+          if (a.totalPoints !== b.totalPoints) {
+            return b.totalPoints - a.totalPoints;
+          } else {
+            return a.completionTime - b.completionTime;
+          }
+        });
+
+        const quizzCheck = await Quizz.findOne({
+          _id: quizzResults[0].idQuizz,
+        });
         res.status(200).json(quizzCheck);
       } else {
         return res.status(404).json({ error: "QuizzResult not found" });
@@ -53,7 +65,13 @@ const QuizzResultSchemaController = {
       const { id } = req.params;
       const userExists = await checkExistsById(UserSchema, id);
       if (userExists) {
-        const quizzResultS = await QuizzResultSchema.find({ idUser: id });
+        let date = req.query.date ? new Date(req.query.date) : new Date();
+        if (req.query.backward === "true") {
+          date.setDate(date.getDate() - 1);
+        }
+        const quizzResultS = await QuizzResultSchema.find({
+          idUser: id,
+        }).populate("idQuizz", "title urlThumbnail question");
         res.status(200).json(quizzResultS);
       } else {
         return res.status(404).json({ error: "User not found" });
@@ -104,25 +122,21 @@ const QuizzResultSchemaController = {
         return res.status(403).json("User or Quizz does not exist");
       }
 
-      // Tìm kiếm bản ghi QuizzResultSchema dựa trên idUser và idQuizz
       const existingQuizzResult = await QuizzResultSchema.findOne({
         idUser: req.body.idUser,
         idQuizz: req.body.idQuizz,
       });
 
       if (existingQuizzResult) {
-        // Nếu bản ghi đã tồn tại, cập nhật các trường dữ liệu
         existingQuizzResult.rightAnswer = req.body.rightAnswer;
         existingQuizzResult.completionTime = req.body.completionTime;
         existingQuizzResult.totalPoints = req.body.totalPoints;
         existingQuizzResult.questions = req.body.questions;
 
-        // Lưu và trả về kết quả
         const updatedQuizzResult = await existingQuizzResult.save();
         console.log("Updated QuizzResult:", updatedQuizzResult);
         res.json(updatedQuizzResult);
       } else {
-        // Nếu bản ghi không tồn tại, tạo mới bản ghi
         const newQuizzResult = new QuizzResultSchema({
           idUser: req.body.idUser,
           idQuizz: req.body.idQuizz,
@@ -132,7 +146,6 @@ const QuizzResultSchemaController = {
           questions: req.body.questions,
         });
 
-        // Lưu và trả về kết quả
         const savedQuizzResult = await newQuizzResult.save();
         console.log("Saved QuizzResult:", savedQuizzResult);
         res.json(savedQuizzResult);
