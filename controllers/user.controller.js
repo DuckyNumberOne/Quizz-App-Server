@@ -32,7 +32,6 @@ const createUser = async (req, res) => {
         ...req.body,
         password: hashed,
       });
-
       const savedUser = await user.save();
       res.json(savedUser);
     }

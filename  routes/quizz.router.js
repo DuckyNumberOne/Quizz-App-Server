@@ -11,7 +11,7 @@ router.get("/getItemQuizzByUser/:id", quizzController.getQuizzsByIdUser);
 router.post(
   "/createQuizz",
   //   middlewareValidate(quizzchema),
-  // middlewareToken.verifyTokenMember,
+  middlewareToken.verifyTokenMember,
   quizzController.createQuizz
 );
 router.put(
