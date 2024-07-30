@@ -134,7 +134,6 @@ const QuizzResultSchemaController = {
         existingQuizzResult.questions = req.body.questions;
 
         const updatedQuizzResult = await existingQuizzResult.save();
-        console.log("Updated QuizzResult:", updatedQuizzResult);
         res.json(updatedQuizzResult);
       } else {
         const newQuizzResult = new QuizzResultSchema({
@@ -147,7 +146,6 @@ const QuizzResultSchemaController = {
         });
 
         const savedQuizzResult = await newQuizzResult.save();
-        console.log("Saved QuizzResult:", savedQuizzResult);
         res.json(savedQuizzResult);
       }
     } catch (error) {

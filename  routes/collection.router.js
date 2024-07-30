@@ -6,12 +6,16 @@ const {
   collectionSchema,
 } = require("../validation/collection/collectionValidation.js");
 
-router.get("/getAllCollection", collectionsController.getCollections);
+router.get(
+  "/getAllCollection",
+  middlewareToken.verifyTokenMember,
+  collectionsController.getCollections
+);
 router.get("/getItemCollection/:id", collectionsController.getCollectionsById);
 router.post(
   "/createCollection",
   middlewareValidate(collectionSchema),
-  // middlewareToken.verifyTokenAdmin,
+  middlewareToken.verifyTokenAdmin,
   collectionsController.createCollection
 );
 router.put(

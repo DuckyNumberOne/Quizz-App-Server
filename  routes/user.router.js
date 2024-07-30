@@ -23,7 +23,9 @@ router.post(
   createUser
 );
 router.post("/checkExisEmail", checkExistsUser);
+
 router.get("/getAllUser", middlewareController.verifyTokenMember, getAllUser);
+
 router.get(
   "/getAllUserByFullName/:fullName",
   middlewareController.verifyTokenMember,

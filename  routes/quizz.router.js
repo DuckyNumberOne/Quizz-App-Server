@@ -3,11 +3,31 @@ const quizzController = require("../controllers/quizz.controller");
 const middlewareToken = require("../middleware/token/tokenMiddleware");
 const middlewareValidate = require("../middleware/validation/validationMiddleware");
 
-router.get("/getAllQuizz", quizzController.getQuizzs);
-router.get("/getItemQuizz/:id", quizzController.getQuizzsById);
-router.get("/getQuestionById/:id", quizzController.getQuestionById);
-router.post("/getAnwsersIsTrue/:id", quizzController.getAnwsersIsTrue);
-router.get("/getItemQuizzByUser/:id", quizzController.getQuizzsByIdUser);
+router.get(
+  "/getAllQuizz",
+  middlewareToken.verifyTokenMember,
+  quizzController.getQuizzs
+);
+router.get(
+  "/getItemQuizz/:id",
+  middlewareToken.verifyTokenMember,
+  quizzController.getQuizzsById
+);
+router.get(
+  "/getQuestionById/:id",
+  middlewareToken.verifyTokenMember,
+  quizzController.getQuestionById
+);
+router.post(
+  "/getAnwsersIsTrue/:id",
+  middlewareToken.verifyTokenMember,
+  quizzController.getAnwsersIsTrue
+);
+router.get(
+  "/getItemQuizzByUser/:id",
+  middlewareToken.verifyTokenMember,
+  quizzController.getQuizzsByIdUser
+);
 router.post(
   "/createQuizz",
   //   middlewareValidate(quizzchema),
