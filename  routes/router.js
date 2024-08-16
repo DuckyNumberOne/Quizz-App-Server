@@ -7,6 +7,7 @@ const collection = require("./collection.router");
 const quizz = require("./quizz.router");
 const quizzResult = require("./quizzResult.router");
 const friend = require("./friend.router");
+const message = require("./message.router");
 
 // Router
 router.use("/user", user);
@@ -17,5 +18,6 @@ router.use("/quizz", quizz);
 router.use("/posts", posts);
 router.use("/quizzResult", quizzResult);
 router.use("/friend", friend);
+router.use("/message", message);
 
 module.exports = router;

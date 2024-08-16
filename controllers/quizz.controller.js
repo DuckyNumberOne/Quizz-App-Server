@@ -4,14 +4,6 @@ const CollectionSchema = require("../model/Collection");
 
 const { checkExistsById } = require("../utils/checkExistsById");
 const QuizzsController = {
-  // getQuizzs: async (req, res) => {
-  //   try {
-  //     const quizz = await QuizzSchema.find();
-  //     res.json(quizz);
-  //   } catch (error) {
-  //     res.status(500).json({ error: error.message });
-  //   }
-  // },
   getQuizzs: async (req, res) => {
     try {
       const quizz = await QuizzSchema.find().populate("idCollection", "title");
