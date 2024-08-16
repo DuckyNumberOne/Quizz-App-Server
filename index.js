@@ -11,7 +11,7 @@ const http = require("http");
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:3000",
+    origin: process.env.CLIENT_URL,
     methods: ["GET", "POST"],
     // allowedHeaders: ["my-custom-header"],
     credentials: true,
@@ -39,12 +39,9 @@ app.use(express.urlencoded({ extended: false }));
 const router = require("./ routes/router");
 app.use(router);
 require("./mongoDB/config");
-app.listen(PORT, async () => {
-  console.log(`server up on port ${PORT}`);
-});
 
-io.listen(9000, async () => {
-  console.log(`server up on port 9000`);
+server.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });
 
 module.exports = app;
